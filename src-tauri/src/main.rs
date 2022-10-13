@@ -16,8 +16,7 @@ fn run_exe(file_path: &str) {
         .expect("Cannot start application");
 }
 
-use winsafe::prelude::*;
-use winsafe::{ResourceInfo, HINSTANCE};
+use winsafe::{ResourceInfo};
 
 #[tauri::command]
 fn get_file_name(file_path:&str)->String {
