@@ -1,41 +1,45 @@
 #![cfg_attr(
     all(not(debug_assertions), target_os = "windows"),
     windows_subsystem = "windows"
-)]
-use std::{process::Command};
-use execute::Execute;
-use systemicons;
+ )]
+ use std::str;
+ use std::{os::windows::process::CommandExt};
 
-use native_dialog::{FileDialog};
-// Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
+
+
 #[tauri::command]
-fn exe_picker() -> String {
+ fn run_exe(file_path:&str) {
+    const DETACHED_PROCESS: u32 = 0x00000008;
 
-    let path = FileDialog::new()
-    .set_location("~/Desktop")
-    .add_filter("Executable", &["exe"])
-    .show_open_single_file()
-    .unwrap();
-    
-    let path = match path {
-        Some(x)=> return x.to_string_lossy().to_string(),
-        None => return format!("None")
-    };
-
-    
-
+    std::process::Command::new("cmd")
+    .raw_arg(format!(r#"/C start "" "{}""#,file_path))
+    .creation_flags(DETACHED_PROCESS).spawn().expect("Cannot start application");
 }
 #[tauri::command]
-fn run_exe(filePath:&str){
-
-    let mut exec_command = Command::new(filePath);
-    exec_command.execute();
-
+fn get_file_name(file_path:&str)->String{
+let path = file_path;
+let mut output_value=String::new();
+let output = std::process::Command::new("powershell").raw_arg(format!(r#"(get-command "{}").fileversioninfo.filedescription"#,path)).output().expect("failed to execute process");
+output_value.push_str(match str::from_utf8(&output.stdout) {
+    Ok(val) => val,
+    Err(_) => panic!("got non UTF-8 data from git"),
+});
+return output_value;
 }
 
-fn main() {
+// use winsafe::prelude::*;
+// use winsafe::{HINSTANCE, ResourceInfo};
+
+// #[tauri::command]
+// fn message_box()-> String{
+
+//     let exe_name = HINSTANCE::NULL.GetModuleFileName();
+// let res_info = ResourceInfo::read_from(&exe_name);
+//     return String::from("test");
+// }
+ fn main() {
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![exe_picker, run_exe])
-        .run(tauri::generate_context!())
-        .expect("error while running tauri application");
-}
+      .invoke_handler(tauri::generate_handler![run_exe,get_file_name,message_box])
+      .run(tauri::generate_context!())
+      .expect("error while running tauri application");
+  }
