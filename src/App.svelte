@@ -1,6 +1,6 @@
 <script lang="ts">
     import { open } from "@tauri-apps/api/dialog";
-    import { invoke } from '@tauri-apps/api/tauri';
+    import { invoke } from "@tauri-apps/api/tauri";
     import type { Executable } from "./types/executable.type";
     import Tray from "./lib/Tray.svelte";
     import Exe from "./lib/Exe.svelte";
@@ -8,14 +8,14 @@
     let executables: Executable[] = [];
     $: errMsg = "";
     let path;
-    onMount(()=>{
-        downloadImage()
-    })
+    onMount(() => {
+        downloadImage();
+    });
     function downloadImage() {
         const options = {
             method: "GET",
             headers: {
-                'Access-Control-Allow-Origin':'*',
+                "Access-Control-Allow-Origin": "*",
                 accept: "application/json",
                 Authorization:
                     "Bearer hnQTW4n0CCSize4pyJDqIdyeUkkj3DHaS89C9GbcdBM1a1fVsy5N2Aaf3nsAMGdO",
@@ -61,14 +61,12 @@
             executables = [...executables, exe];
         }
     }
-    async function messagebox() {
-        await invoke("message_box")
-    }
+
 </script>
 
 <Tray />
 {errMsg}
-<button on:click={messagebox}></button>
+
 <button on:click={addExe}> Add application </button>
 
 <div class="container">
