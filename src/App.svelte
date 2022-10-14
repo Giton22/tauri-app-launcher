@@ -8,28 +8,7 @@
     let executables: Executable[] = [];
     $: errMsg = "";
     let path;
-    onMount(() => {
-        downloadImage();
-    });
-    function downloadImage() {
-        const options = {
-            method: "GET",
-            headers: {
-                "Access-Control-Allow-Origin": "*",
-                accept: "application/json",
-                Authorization:
-                    "Bearer hnQTW4n0CCSize4pyJDqIdyeUkkj3DHaS89C9GbcdBM1a1fVsy5N2Aaf3nsAMGdO",
-            },
-        };
 
-        fetch(
-            "https://api.iconfinder.com/v4/icons/search?query=discord&count=1&offset=0&premium=0",
-            options
-        )
-            .then((response) => response.json())
-            .then((response) => console.log(response))
-            .catch((err) => console.error(err));
-    }
     async function addExe() {
         errMsg = "";
         const selected = await open({
@@ -41,14 +20,18 @@
                 },
             ],
         });
+        let icon:string = await invoke("get_icon",{selected});
         if (Array.isArray(selected)) {
             selected.forEach((item) => {
                 let exe: Executable = {
                     name: item,
                     path: item,
-                    iconLocation: "src/assets/unknown.png",
+                    iconLocation:icon,
                 };
+                icon=await invoke("get_icon",{exe.})
                 executables = [...executables, exe];
+                console.log(exe)
+
             });
         } else if (selected === null) {
             errMsg = "You did not select any file or the file is not supported";
@@ -56,9 +39,11 @@
             let exe: Executable = {
                 name: selected,
                 path: selected,
-                iconLocation: "src/assets/unknown.png",
+                iconLocation: icon,
             };
             executables = [...executables, exe];
+            console.log(exe.iconLocation)
+
         }
     }
 

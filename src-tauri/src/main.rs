@@ -2,7 +2,7 @@
     all(not(debug_assertions), target_os = "windows"),
     windows_subsystem = "windows"
 )]
-use std::os::windows::process::CommandExt;
+use std::{os::windows::process::CommandExt, process::Command};
 use std::str;
 
 #[tauri::command]
@@ -33,11 +33,26 @@ fn get_file_name(file_path:&str)->String {
     return String::from("Unknown");
 
 }
+#[tauri::command]
+fn get_icon(file_path: &str)->String{
+    let current_dir=std::env::current_dir().unwrap();
+    let current_dir = current_dir.to_string_lossy();
+    
+
+    let file_name=get_file_name(file_path);
+    Command::new("extracticon").raw_arg(format!(r#"{} {}/icons/{}.png"#,file_path,current_dir,file_name));
+    println!("{}/icons/{}.png",current_dir,file_name);
+    return format!("{}/icons/{}.png",current_dir,file_name);
+}
+
 fn main() {
+    
+
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![
             run_exe,
-            get_file_name
+            get_file_name,
+            get_icon
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
