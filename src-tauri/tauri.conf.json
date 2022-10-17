@@ -12,6 +12,10 @@
   },
   "tauri": {
     "allowlist": {
+      "fs": {
+        "all": true,
+        "scope": []
+      },
       "http": {
         "all": false,
         "request": true,
@@ -32,7 +36,14 @@
         "open": true,
         "save": false
       },
-      "path":{
+      "protocol": {
+        "all": false,
+        "asset": true,
+        "assetScope": [
+          "assets/Guilded.png"
+        ]
+      },
+      "path": {
         "all": true
       },
       "all": true
@@ -71,7 +82,7 @@
       }
     },
     "security": {
-      "csp": null
+      "csp": "default-src 'self'; img-src 'self' asset: https://asset.localhost"
     },
     "updater": {
       "active": false

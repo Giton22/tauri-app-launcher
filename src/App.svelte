@@ -4,10 +4,8 @@
     import type { Executable } from "./types/executable.type";
     import Tray from "./lib/Tray.svelte";
     import Exe from "./lib/Exe.svelte";
-    import { onMount } from "svelte";
     let executables: Executable[] = [];
     $: errMsg = "";
-    let path;
 
     async function addExe() {
         errMsg = "";
@@ -20,33 +18,17 @@
                 },
             ],
         });
-        let icon:string = await invoke("get_icon",{selected});
-        if (Array.isArray(selected)) {
-            selected.forEach((item) => {
-                let exe: Executable = {
-                    name: item,
-                    path: item,
-                    iconLocation:icon,
-                };
-                icon=await invoke("get_icon",{exe.})
-                executables = [...executables, exe];
-                console.log(exe)
-
-            });
-        } else if (selected === null) {
-            errMsg = "You did not select any file or the file is not supported";
-        } else {
+        if (!Array.isArray(selected)) {
             let exe: Executable = {
                 name: selected,
                 path: selected,
-                iconLocation: icon,
+                iconLocation: selected,
             };
             executables = [...executables, exe];
-            console.log(exe.iconLocation)
-
+        } else if (selected === null) {
+            errMsg = "You did not select any file or the file is not supported";
         }
     }
-
 </script>
 
 <Tray />
@@ -56,7 +38,7 @@
 
 <div class="container">
     {#each executables as exe}
-        <Exe filePath={exe.path} iconPath={exe.iconLocation} />
+        <Exe filePath={exe.path} />
     {/each}
 </div>
 

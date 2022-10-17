@@ -2,8 +2,8 @@
     all(not(debug_assertions), target_os = "windows"),
     windows_subsystem = "windows"
 )]
-use std::{os::windows::process::CommandExt, process::Command};
 use std::str;
+use std::{os::windows::process::CommandExt, process::Command};
 
 #[tauri::command]
 fn run_exe(file_path: &str) {
@@ -16,44 +16,43 @@ fn run_exe(file_path: &str) {
         .expect("Cannot start application");
 }
 
-use winsafe::{ResourceInfo};
+use winsafe::ResourceInfo;
 
 #[tauri::command]
-fn get_file_name(file_path:&str)->String {
-
-    let res_info = ResourceInfo::read_from(format!(r#"{}"#,file_path).as_str());
+fn get_file_name(file_path: &str) -> String {
+    let res_info = ResourceInfo::read_from(format!(r#"{}"#, file_path).as_str());
     let value = res_info.unwrap();
 
     for block in value.blocks() {
         if let Some(file_description) = block.product_name() {
             println!("File Description: {}", file_description);
-            return format!("{}",file_description);
+            return format!("{}", file_description);
         }
     }
     return String::from("Unknown");
-
 }
-#[tauri::command]
-fn get_icon(file_path: &str)->String{
-    let current_dir=std::env::current_dir().unwrap();
-    let current_dir = current_dir.to_string_lossy();
-    
 
-    let file_name=get_file_name(file_path);
-    Command::new("extracticon").raw_arg(format!(r#"{} {}/icons/{}.png"#,file_path,current_dir,file_name));
-    println!("{}/icons/{}.png",current_dir,file_name);
-    return format!("{}/icons/{}.png",current_dir,file_name);
+use std::io::{self, Write};
+#[tauri::command]
+fn get_icon(app_dir_path:&str,file_path: &str) -> String {
+
+    let file_name = get_file_name(file_path);
+    let output = Command::new("extracticon")
+        .raw_arg(format!(
+            r#"{} {}assets/{}.png"#,
+            file_path, app_dir_path, file_name
+        ))
+        .output()
+        .expect("program not found");
+    println!("{}assets/{}.png", app_dir_path, file_name);
+    io::stdout().write_all(&output.stdout).unwrap();
+    io::stderr().write_all(&output.stderr).unwrap();
+    return String::from(format!(r#"assets\{}.png"#, file_name));
 }
 
 fn main() {
-    
-
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![
-            run_exe,
-            get_file_name,
-            get_icon
-        ])
+        .invoke_handler(tauri::generate_handler![run_exe, get_file_name, get_icon])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
