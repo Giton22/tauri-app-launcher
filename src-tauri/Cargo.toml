@@ -22,6 +22,7 @@ native-dialog = "0.6.3"
 execute = "0.2.11"
 winsafe = { version = "0.0.11", features = ["version"] }
 reqwest = { version = "0.11", features = ["json"] }
+pelite = "0.9.1"
 
 
 [features]

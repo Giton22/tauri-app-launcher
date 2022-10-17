@@ -14,7 +14,7 @@
     "allowlist": {
       "fs": {
         "all": true,
-        "scope": []
+        "scope": ["$APP/*"]
       },
       "http": {
         "all": false,
@@ -40,7 +40,7 @@
         "all": false,
         "asset": true,
         "assetScope": [
-          "assets/Guilded.png"
+          "$APP/assets/**/*.png"
         ]
       },
       "path": {

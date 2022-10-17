@@ -1,6 +1,7 @@
 <script lang="ts">
+    import { appDir, join } from "@tauri-apps/api/path";
+
     import { convertFileSrc, invoke } from "@tauri-apps/api/tauri";
-    import { appDir } from '@tauri-apps/api/path';
 
     export let filePath: string;
     let exeName = filePath
@@ -16,21 +17,17 @@
         let name = await invoke("get_file_name", { filePath });
         return name;
     }
-    async function getAppDir() {
-        const appDirPath = await appDir();
-        return appDirPath;
-    }
-    async function get_icon(){
-        const appDirPath = await appDir();
-        const icon_path: string = await invoke("get_icon", { appDirPath,filePath });
-         const assetUrl = convertFileSrc(icon_path);
-        console.log(appDirPath+icon_path);
-        console.log(assetUrl);
 
+    async function get_icon() {
+        
+        const appDirPath = await appDir();
+        const destPath = await join(appDirPath,"assets")
+        const iconPath:string = await invoke("get_icon",{filePath,destPath})
+        const assetUrl = convertFileSrc(iconPath);
+        console.log(iconPath)
         return assetUrl;
     }
-
-    </script>
+</script>
 
 <div class="container">
     {#await get_icon() then icon}
